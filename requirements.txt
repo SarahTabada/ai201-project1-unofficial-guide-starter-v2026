@@ -22,7 +22,7 @@ python-dotenv>=1.0,<1.2
 # Unit 2's "try a second embedding model" option is the one thing that does
 # need the heavier route. It is an optional install, not a requirement:
 #     pip install 'sentence-transformers>=3.4,<3.5'
-chromadb>=0.6,<0.7
+chromadb>=0.5,<0.6
 
 # Not used directly. This is chromadb's telemetry dependency, and chromadb
 # declares it as `posthog>=2.4.0` with NO upper bound. posthog 7.x changed a
@@ -35,7 +35,7 @@ posthog>=3.0,<4.0
 
 # Calls the hosted model that writes answers. The only paid dependency,
 # and it's free at the tier this course uses.
-google-genai>=1.0,<2.0
+google-generativeai>=0.1.0rc1
 
 # Keyword search, for one of unit 2's improvement options. Shipped pinned so
 # it's there if you want it — the implementation is yours to write.

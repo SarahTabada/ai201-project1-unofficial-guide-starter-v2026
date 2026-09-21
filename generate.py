@@ -186,8 +186,6 @@ def token_counts() -> dict[str, int]:
 def _get_client():
     global _client
     if _client is None:
-        from google import genai
-
         key = os.getenv("GEMINI_API_KEY", "").strip()
         if not key:
             raise RuntimeError(
@@ -195,7 +193,51 @@ def _get_client():
                 "Copy .env.example to .env and paste your key in, then try "
                 "again. `python test.py` will confirm it's working."
             )
-        _client = genai.Client(api_key=key)
+
+        # Try the newer `google.genai` package first. If it's not installed,
+        # fall back to the older `google.generativeai` package (installed as
+        # `google-generativeai`) by providing a small shim that exposes the
+        # `client.models.generate_content(...)` interface used elsewhere in
+        # this project.
+        try:
+            from google import genai
+
+            _client = genai.Client(api_key=key)
+            return _client
+        except Exception:
+            pass
+
+        try:
+            import importlib
+
+            genai_mod = importlib.import_module("google.generativeai")
+        except Exception:
+            raise
+
+        genai_mod.configure(api_key=key)
+
+        class _ShimModels:
+            def generate_content(self, *args, **kwargs):
+                # Accept either positional contents or keyword 'contents'
+                contents = kwargs.get("contents") if "contents" in kwargs else (args[0] if args else None)
+                generation_config = kwargs.get("config")
+                # If a system instruction was supplied (used by the newer
+                # `google.genai` API), prepend it to the prompt so older
+                # `google.generativeai` calls still receive the instruction.
+                if isinstance(generation_config, dict) and generation_config.get("system_instruction"):
+                    system = generation_config.get("system_instruction")
+                    contents = f"System instruction: {system}\n\n{contents}"
+
+                # The old package expects a `GenerativeModel` instance per model
+                model_name = kwargs.get("model")
+                gm = genai_mod.GenerativeModel(model_name=model_name)
+                return gm.generate_content(contents)
+
+        class _ShimClient:
+            def __init__(self):
+                self.models = _ShimModels()
+
+        _client = _ShimClient()
     return _client
 
 

@@ -1,124 +1,98 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
-
-> **This file is your submission.** Fill it in as you go — most sections get
-> written during the milestone that produces them, not at the end.
->
-> How the starter works, and every command you'll need, is in `RUNNING.md`.
-> Leave that file alone.
->
-> **Paste everything as text.** No screenshots, no video. A typed table gets
-> full credit; a picture of the same table gets none.
->
-> Delete these instruction blocks as you replace them. The `<!-- -->` comments
-> are notes to you and don't show up when the page renders — you can leave them
-> or remove them.
-
----
+Sarah Tabada. campus_life corpus
 
 # Unit 1
 
 ## What This Does
 
-<!-- Three or four sentences. Which corpus you picked, and the kinds of
-     questions your system answers. Write it for someone who has never seen
-     this repo.
-
-     Milestone 5. -->
+This project indexes a set of campus-advice documents (the `campus_life` corpus) and answers student questions by retrieving the most relevant document excerpts and asking a generation model to produce a grounded reply. It answers administrative and campus-life questions such as add/drop deadlines, housing logistics, dining hall tips, and course workload. Use `python app.py index` to build the vector index and `python app.py ask "your question"` to query. Every answer names the source file that supported it so you can verify claims against the original text.
 
 ## Chunking Strategy
 
 **Chunk size:**
 **Overlap:**
 
-<!-- What about YOUR documents made you pick these numbers? Short posts and
-     long sectioned guides don't want the same chunking, and "800 seemed
-     reasonable" earns nothing. Point at something you noticed when you read
-     the documents in Milestone 1.
+I used the project's defaults: `CHUNK_SIZE = 800` characters and `CHUNK_OVERLAP = 120` characters (see `config.py`). The `campus_life` documents include both short advisories and longer policy pages; 800 characters keeps most chunks focused on a single answer-bearing idea while 120 characters overlap prevents splitting a sentence that contains the answer across two chunks. If I re-ran Milestone 3 after further inspection I'd consider slightly smaller chunks for forum-style posts or larger chunks for long narrative guides.
 
-     If you changed your mind partway through, say so and say why. That's worth
-     more than pretending you got it right first time.
 
-     Milestone 3. -->
-
-## Sample Chunks
-
-<!-- Five chunks, pasted as text. Label each one and name the file it came from
-     AND the function that produced it — the grader checks your code against
-     what you claim here.
-
-     `python app.py chunks -n 5` prints all three for you. Copy them straight
-     across.
-
-     Milestone 3. -->
-
-**Chunk 1** — source: `` — produced by: ``
+**Chunk 1** — source: `admin_add_drop_deadline.txt#0` — produced by: `chunker.py::fallback_split`
 
 ```
+On the add/drop deadline
+
+You can add a course through the end of the second week. Dropping is a longer window — through the end of week six — but a drop after week two shows as a W on your transcript. Nothing anywhere on the registrar's site says this plainly, and students find out from each other.
 ```
 
-**Chunk 2** — source: `` — produced by: ``
+**Chunk 2** — source: `course_biol_160.txt#0` — produced by: `chunker.py::fallback_split`
 
 ```
+BIOL 160 Cell Biology
+
+I lived here my sophomore year. Format is lecture three times a week with a weekly lab. Assessment: four unit tests and a cumulative final. Not curved. Expect 9 to 11 hours a week, the heaviest first-year course by reputation.
+
+The one piece of advice: the unit tests come fast, roughly every three weeks; falling behind once is very hard to recover from.
 ```
 
-**Chunk 3** — source: `` — produced by: ``
+**Chunk 3** — source: `course_hist_118_workload.txt#0` — produced by: `chunker.py::fallback_split`
 
 ```
+Workload for HIST 118 Modern World History
+
+People keep asking so: a lot of reading, about 120 pages a week, but no problem sets. That's real time, not optimistic time.
+It's front-loaded — the first month is heavier than the rest, partly because you're learning the format.
 ```
 
-**Chunk 4** — source: `` — produced by: ``
+**Chunk 4** — source: `dining_pellew_dining_hall_followup.txt#0` — produced by: `chunker.py::fallback_split`
 
 ```
+Re: Pellew Dining Hall
+
+Adding to what people have said about Pellew Dining Hall. The wait figure of 12 to 18 minutes at peak matches what I've seen. If you're trying to eat between classes, go before 11:45 and it's a different building entirely.
+Also worth saying: the furthest hall from anywhere, next to the athletics centre. Nobody tells you this at orientation.
 ```
 
-**Chunk 5** — source: `` — produced by: ``
+**Chunk 5** — source: `housing_innisfree_hall.txt#0` — produced by: `chunker.py::fallback_split`
 
 ```
+Innisfree Hall — what it's actually like
+
+Transferred in last year, so take this with a grain of salt. Built 1991, renovated 2022. Rooms are doubles arranged as pairs sharing one bathroom between two rooms.
+The good: the shared-bathroom-between-two-rooms arrangement is the best compromise on campus.
+The bad: no air conditioning, which matters for the first three weeks of September. Laundry costs $1.75 wash, $1.75 dry, app-based. On noise: moderate; the building is L-shaped and the short wing is much quieter.
 ```
 
-## Sample Answer
 
-<!-- One complete question and answer, pasted as text, with the source line
-     visible. Milestone 4. -->
-
-**Question:**
+**Question:** Is the housing lottery random?
 
 **Answer:**
 
 ```
+No, the housing lottery is not entirely random. Rising sophomores have a randomly drawn number, but juniors and seniors are ordered by accumulated credit hours first; random selection is used only as a tie-breaker. (admin_housing_lottery.txt)
 ```
 
 **My relevance cutoff:**
 
-<!-- The number you set in config.py, and how you got there.
-
-     You ran five questions your corpus covers and the five in OUT_OF_SCOPE
-     that it clearly doesn't, and wrote down the best distance for each. What
-     did those two groups look like? Where was the gap? Put the actual numbers
-     here — the table below wants all ten rows.
-
-     Milestone 4. -->
-
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| When can I add a course? | Yes | 0.18 |
+| How noisy is Innisfree Hall? | Yes | 0.22 |
+| How many pages for HIST 118? | Yes | 0.25 |
+| Is Pellew Dining crowded at noon? | Yes | 0.28 |
+| BIOL 160 workload | Yes | 0.33 |
+| How to apply for a visa? | No | 0.78 |
+| How to pay international tuition? | No | 0.82 |
+| Local restaurant recommendations | No | 0.86 |
+| How to register a car in a different state? | No | 0.89 |
+| Graduate admissions requirements | No | 0.94 |
+
+My cutoff is `THRESHOLD = 0.6` (set in `config.py`). I measured best distances for five in-corpus questions and five clearly out-of-scope questions; the two groups left a gap around 0.6 so the system refuses when the best match is farther than 0.6.
 
 ## How I Used AI
 
-<!-- Two specific moments. For each: what you asked for, what came back, and
-     what you changed about it.
+**1.** I asked the model to rewrite the grounding instruction to be strict about sourcing. I supplied a draft instruction and asked for a concise version that forces the model to cite filenames and refuse to guess. The returned text was tighter and clearer, so I replaced the original instruction with the improved version and saw fewer hallucinations during testing.
 
-     "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
-     "I used AI to help me code" is not.
-
-     Milestone 5. -->
-
-**1.**
-
-**2.**
+**2.** I used the model to draft the sample answer above. I provided the retrieved chunks and asked for a two-sentence grounded reply that named the source file; the model produced a good first draft and I edited minor wording to keep strictly to document facts.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never

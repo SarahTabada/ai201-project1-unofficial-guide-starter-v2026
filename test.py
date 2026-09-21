@@ -40,6 +40,7 @@ MIN_RAM_GB = 4
 IMPORT_NAMES = {
     "python-dotenv": "dotenv",
     "google-genai": "google.genai",
+    "google-generativeai": "google.generativeai",
     "rank-bm25": "rank_bm25",
     "rank_bm25": "rank_bm25",
     "pillow": "PIL",
@@ -265,14 +266,34 @@ def check_chroma():
 
 
 def check_api_call(key):
+    # Support both the newer `google.genai` package and the older
+    # `google.generativeai` package (installed as `google-generativeai`).
+    genai_mod = None
     try:
-        from google import genai
-    except ImportError:
-        return report("SKIP", "Model call", "google-genai not installed yet.")
+        from google import genai as genai_mod
+    except Exception:
+        try:
+            import importlib
+
+            genai_mod = importlib.import_module("google.generativeai")
+        except Exception:
+            return report("SKIP", "Model call", "google-genai not installed yet.")
+
     try:
-        client = genai.Client(api_key=key)
-        resp = client.models.generate_content(model=MODEL, contents="Reply with one word: ready")
-        text = (resp.text or "").strip()
+        # google.genai API
+        if hasattr(genai_mod, "Client"):
+            client = genai_mod.Client(api_key=key)
+            resp = client.models.generate_content(model=MODEL, contents="Reply with one word: ready")
+            text = (resp.text or "").strip()
+        else:
+            # google.generativeai API
+            # configure and use GenerativeModel
+            genai_mod.configure(api_key=key)
+            model = genai_mod.GenerativeModel(model_name=MODEL)
+            resp = model.generate_content("Reply with one word: ready")
+            # response shape exposes .text in both libs; fall back to string
+            text = getattr(resp, "text", str(resp)).strip()
+
         report("PASS", "Model call", f'{MODEL} replied "{text[:40]}"')
     except Exception as e:
         msg = str(e)
