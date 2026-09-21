@@ -25,6 +25,11 @@ contains the answer.
 **Why this target:**
 <!-- e.g. "One of my questions is about a topic only two documents mention, so
      I expect that one to be hard." -->
+This target focuses evaluation on retrieval quality, which is the stage most
+likely to fail in a grounded system. If a relevant chunk isn't retrieved,
+the generator has nothing truthful to work with. Allowing one miss (4 of 5)
+acknowledges natural edge cases (short or unusually phrased answers) while
+still requiring retrieval to be reliable for the majority of questions.
 
 ---
 
@@ -35,6 +40,11 @@ Every answer the system produces names at least one source document.
 **Why this target:**
 <!-- Why all five and not four? What about your setup makes that achievable —
      or what would have to go wrong for it not to be? -->
+Source attribution is the core safety mechanism for this assignment: it
+lets a reader verify claims and detect hallucinations quickly. The system's
+prompting and grounding design explicitly require filenames in the answer,
+so naming a source for all answers is an achievable and testable requirement
+that enforces accountable outputs.
 
 ---
 
@@ -52,6 +62,13 @@ in at least 4 of 5 tries.
 **Why this target:**
 <!-- What did your distances look like when you set the cutoff in Milestone 4?
      Was there a clean gap, or did the two groups overlap? -->
+The gate is the primary defense against off-topic model calls and hallucination.
+Requiring a 4 of 5 refusal rate balances occasional borderline cases (where
+an out-of-scope question superficially matches a noisy document) with the
+need to avoid wasting API quota and producing unsupported answers. I chose
+this because the distance distributions for in-corpus vs out-of-scope
+questions usually show a gap but not a perfect separation, so a 4/5 target
+is realistic and meaningful.
 
 ---
 
@@ -70,10 +87,15 @@ in at least 4 of 5 tries.
           in my corpus turned out to be a heading with no content under it." -->
 
 
+At least 4 of 5 sampled chunks read as a complete thought, with no sentence
+cut in half at either end.
 
 **Why this target:**
 
-
+When a chunk splits a sentence, retrieval frequently returns fragments that
+cannot answer a question by themselves; keeping most chunks as complete
+thoughts increases the chance a single retrieved chunk contains an answer and
+makes grounding straightforward to evaluate.
 
 ---
 
@@ -88,9 +110,16 @@ in at least 4 of 5 tries.
      outcome. -->
 
 
+For at least 4 of my 5 test questions, the generated answer is concise (no
+more than three sentences) and contains the short expected token/phrase I
+listed in `questions.py`.
 
 **Why this target:**
 
+Grounded answers should be brief and directly cite information from retrieved
+chunks; measuring both concision and presence of the expected token is a
+practical way to detect rambling or hallucinated replies while keeping the
+check automatable for unit 2 evaluation.
 
 
 ---
