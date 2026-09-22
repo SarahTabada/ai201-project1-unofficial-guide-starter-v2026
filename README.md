@@ -75,12 +75,12 @@ No, the housing lottery is not entirely random. Rising sophomores have a randoml
 
 | Question | In corpus? | Best distance |
 |---|---|---|
-| When can I add a course? | Yes | 0.18 |
+| When can I add a course? | Yes | 0.18 | 
 | How noisy is Innisfree Hall? | Yes | 0.22 |
 | How many pages for HIST 118? | Yes | 0.25 |
 | Is Pellew Dining crowded at noon? | Yes | 0.28 |
 | BIOL 160 workload | Yes | 0.33 |
-| How to apply for a visa? | No | 0.78 |
+| How to apply for a visa? | No | 0.78 | 
 | How to pay international tuition? | No | 0.82 |
 | Local restaurant recommendations | No | 0.86 |
 | How to register a car in a different state? | No | 0.89 |
@@ -93,6 +93,12 @@ My cutoff is `THRESHOLD = 0.6` (set in `config.py`). I measured best distances f
 **1.** I asked the model to rewrite the grounding instruction to be strict about sourcing. I supplied a draft instruction and asked for a concise version that forces the model to cite filenames and refuse to guess. The returned text was tighter and clearer, so I replaced the original instruction with the improved version and saw fewer hallucinations during testing.
 
 **2.** I used the model to draft the sample answer above. I provided the retrieved chunks and asked for a two-sentence grounded reply that named the source file; the model produced a good first draft and I edited minor wording to keep strictly to document facts.
+
+## How I Used AI
+
+**1.** I improved the grounding instruction: I gave the model my draft and asked for a short, strict instruction that requires the model to cite source filenames and to refuse when the documents don't support an answer. I replaced the previous instruction with this version and observed fewer unsupported assertions in test outputs.
+
+**2.** I drafted and edited the sample answer: using the retrieved chunks, I asked the model for a two-sentence, source-naming reply. The model produced a clear draft; I then compared it to the original documents and removed any phrasing that went beyond what the sources stated.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
