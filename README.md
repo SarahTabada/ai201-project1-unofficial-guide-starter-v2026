@@ -1,6 +1,6 @@
 # The Unofficial Guide
 
-Sarah Tabada. campus_life corpus
+Sarah Tabada. Campus_Life Corpus
 
 # Unit 1
 
@@ -86,13 +86,8 @@ No, the housing lottery is not entirely random. Rising sophomores have a randoml
 | How to register a car in a different state? | No | 0.89 |
 | Graduate admissions requirements | No | 0.94 |
 
-My cutoff is `THRESHOLD = 0.6` (set in `config.py`). I measured best distances for five in-corpus questions and five clearly out-of-scope questions; the two groups left a gap around 0.6 so the system refuses when the best match is farther than 0.6.
+I set the relevance cutoff THRESHOLD = 0.6 (in config.py) after measuring nearest-match distances for five in‑corpus and five out‑of‑scope questions — the two groups left a clear gap near 0.6, so the system refuses queries whose best match exceeds this threshold.
 
-## How I Used AI
-
-**1.** I asked the model to rewrite the grounding instruction to be strict about sourcing. I supplied a draft instruction and asked for a concise version that forces the model to cite filenames and refuse to guess. The returned text was tighter and clearer, so I replaced the original instruction with the improved version and saw fewer hallucinations during testing.
-
-**2.** I used the model to draft the sample answer above. I provided the retrieved chunks and asked for a two-sentence grounded reply that named the source file; the model produced a good first draft and I edited minor wording to keep strictly to document facts.
 
 ## How I Used AI
 
