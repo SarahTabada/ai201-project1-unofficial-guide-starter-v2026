@@ -93,7 +93,7 @@ I set the relevance cutoff THRESHOLD = 0.6 (in config.py) after measuring neares
 
 **1.** I improved the grounding instruction: I gave the model my draft and asked for a short, strict instruction that requires the model to cite source filenames and to refuse when the documents don't support an answer. I replaced the previous instruction with this version and observed fewer unsupported assertions in test outputs.
 
-**2.** I drafted and edited the sample answer: using the retrieved chunks, I asked the model for a two-sentence, source-naming reply. The model produced a clear draft; I then compared it to the original documents and removed any phrasing that went beyond what the sources stated.
+**2.** I drafted and edited the sample answer: using the retrieved chunks, I asked the model for a two-sentence, source-naming reply. The model produced a clear draft. I then compared it to the original documents and removed any phrasing that went beyond what the sources stated. 
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
